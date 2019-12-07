@@ -8,4 +8,4 @@ molecule:
   stage: test
   script:
     - ansible --version
-    - molecule test
+    - molecule test --all
