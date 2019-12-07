@@ -1,0 +1,30 @@
+$TTL            604800
+$ORIGIN {{ zone.name }}.
+@               IN      SOA     {{ zone.nameservers | map(attribute='name') | first }}. {{ zone.hostmaster }}. (
+                                {{ "%10s" | format(zone.serial | default(zone_serial.stdout)) }}     ; Serial
+                                {{ "%10s" | format(zone.refresh | default("604800")) }}     ; Refresh
+                                {{ "%10s" | format(zone.retry | default("86400")) }}     ; Retry
+                                {{ "%10s" | format(zone.expire | default("2419200")) }}     ; Expire
+                                {{ "%10s" | format(zone.ttl | default("604800")) }} )   ; Negative Cache TTL
+
+{% if zone.nameservers is defined and zone.nameservers %}
+{%   for ns in zone.nameservers %}
+                IN      NS      {{ ns.name }}.
+{%   endfor %}
+{% endif %}
+{% if zone.mailservers is defined and zone.mailservers %}
+{%   for mx in zone.mailservers %}
+                IN      MX   {{ loop.index * 10 }} {{ mx }}.
+{%   endfor %}
+{% endif %}
+{% if zone.nameservers is defined and zone.nameservers %}
+{%   for ns in zone.nameservers %}
+{%     if ns.ipv4_address is defined and ns.ipv4_address %}
+{%       if (zone.ptr | default(False)) %}
+{{ "%-15s" | format(ns.ipv4_address.split('.') | last) }} IN      PTR     {{ ns.name }}.
+{%       else %}
+{{ "%-15s" | format(ns.name.split('.', 1) | first) }} IN      A     {{ ns.ipv4_address }}
+{%       endif %}
+{%     endif %}
+{%   endfor %}
+{% endif %}

@@ -1,0 +1,19 @@
+{% import 'macros.j2' as tpl with context %}
+# {{ ansible_managed }}
+
+include "/etc/bind/{{ dubzland_bind9_nsupdate_key.name }}.key";
+{% for key in dubzland_bind9_keys %}
+include "/etc/bind/{{ key.name }}.key";
+{% endfor %}
+
+{% for acl in dubzland_bind9_acls %}
+{{ tpl.print_acl(acl) }}
+{% endfor %}
+
+{% for view in dubzland_bind9_views %}
+{{ tpl.print_view(view) }}
+{% endfor %}
+
+{% for zone in dubzland_bind9_zones %}
+{{ tpl.print_zone(zone) }}
+{% endfor %}

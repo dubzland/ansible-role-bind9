@@ -1,0 +1,17 @@
+dependencies: []
+
+galaxy_info:
+  role_name: bind9
+  author: t3hprm13
+  description: ISC Bind9 server for Debian
+  company: Cedar House Labs
+  license: MIT
+  min_ansible_version: 2.2
+  platforms:
+    - name: Debian
+      versions:
+        - stretch
+        - buster
+  galaxy_tags:
+    - dns
+    - bind9

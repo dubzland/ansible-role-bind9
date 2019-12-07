@@ -1,0 +1,13 @@
+---
+- import_tasks: variables.yml
+- import_tasks: packages.yml
+- import_tasks: configuration.yml
+
+- meta: flush_handlers
+
+- import_tasks: hosts.yml
+
+- name: ensure bind9 is running
+  service:
+    name: bind9
+    state: started

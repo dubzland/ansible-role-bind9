@@ -1,0 +1,7 @@
+---
+- name: ensure the Bind9 packages are installed
+  package:
+    name: "{{ dubzland_bind9_packages }}"
+    state: present
+  tags:
+    - dns

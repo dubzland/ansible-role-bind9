@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+options {
+	directory "{{ dubzland_bind9_zone_directory }}";
+
+	allow-transfer { none; };
+
+	forwarders {
+{% for forwarder in dubzland_bind9_forwarders %}
+		{{ forwarder }};
+{% endfor %}
+	};
+};

@@ -1,0 +1,65 @@
+---
+- name: ensure bind9 key files exist
+  template:
+    src: "etc/bind/key.j2"
+    dest: "/etc/bind/{{ key.name }}.key"
+    owner: root
+    group: bind
+    mode: 0660
+  loop: "{{ dubzland_bind9_keys + [dubzland_bind9_nsupdate_key] }}"
+  loop_control:
+    loop_var: key
+  notify:
+    - restart bind9
+  tags:
+    - bind9
+    - dns
+
+- name: ensure Bind9 is configured
+  template:
+    src: "etc/bind/{{ item }}.j2"
+    dest: "/etc/bind/{{ item }}"
+    owner: root
+    group: bind
+    mode: 0660
+  with_items:
+    - named.conf
+    - named.conf.options
+    - named.conf.local
+  notify:
+    - restart bind9
+  tags:
+    - bind9
+    - dns
+
+- name: ensure the zone file directory is present
+  file:
+    path: "{{ dubzland_bind9_zone_directory }}"
+    state: directory
+    owner: root
+    group: bind
+    mode: 0775
+  tags:
+    - bind9
+    - dns
+
+- name: generate a zone serial
+  command: "date +%Y%m%d01"
+  register: zone_serial
+  changed_when: False
+
+- name: ensure the zone files are present
+  template:
+    src: var/cache/bind/zone.j2
+    dest: "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}"
+    owner: root
+    group: bind
+    mode: 0660
+    force: no
+  loop: "{{ dubzland_bind9_views | map(attribute='zones') | flatten | list }}"
+  loop_control:
+    loop_var: zone
+  notify: restart bind9
+  tags:
+    - bind9
+    - dns

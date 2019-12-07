@@ -1,0 +1,29 @@
+{% set _derived_ddns_updates_tpl = [] %}
+{% macro make_record(zone, host) %}
+{%   set _record = { "zone": zone.name } %}
+{%   set _ = _record.update({ "record": host.name }) %}
+{%   set _ = _record.update({ "value": host.value }) %}
+{%   set _ = _record.update({ "type": host.type }) %}
+{%   set _ = _record.update({ "state": (host.state | default('present')) }) %}
+{%   set _ = _derived_ddns_updates_tpl.append(_record) %}
+{% endmacro %}
+{% macro handle_zone(zone) %}
+{%   if zone.records is defined and zone.records %}
+{%     for record in zone.records %}
+{%       set _ = make_record(zone, record) %}
+{%     endfor %}
+{%   endif %}
+{% endmacro %}
+{% for view in dubzland_bind9_views %}
+{%   if view.zones is defined and view.zones %}
+{%     for zone in view.zones %}
+{%       set _ = handle_zone(zone) %}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+{#
+#}
+{% for zone in dubzland_bind9_zones %}
+{%   set _ = handle_zone(zone) %}
+{% endfor %}
+{{ _derived_ddns_updates_tpl | to_yaml }}

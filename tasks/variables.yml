@@ -1,0 +1,11 @@
+---
+- name: set os-specific variables
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml"
+        - "{{ ansible_distribution }}.yml"
+        - "default.yml"
+      paths:
+        - "{{ role_path }}/vars"

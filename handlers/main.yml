@@ -1,0 +1,9 @@
+---
+- name: restart bind9
+  command: named-checkconf /etc/bind/named.conf
+  notify: restart bind9 (real)
+
+- name: restart bind9 (real)
+  service:
+    name: bind9
+    state: restarted

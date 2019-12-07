@@ -1,0 +1,97 @@
+{##############################################################################
+ #
+ # MACRO :: print_key()
+ #
+ #############################################################################}
+{% macro print_key(key) %}
+key "{{ key.name }}" {
+	algorithm {{ key.algorithm }};
+	secret "{{ key.secret }}";
+};
+{% endmacro %}
+
+{##############################################################################
+ #
+ # MACRO :: print_acl()
+ #
+ #############################################################################}
+{% macro print_acl(acl) %}
+acl {{ acl.name }} {
+{%   for member in acl.members %}
+	{{ member }};
+{%   endfor %}
+};
+{% endmacro %}
+
+{##############################################################################
+ #
+ # MACRO :: print_view()
+ #
+ #############################################################################}
+{% macro print_view(view) %}
+view "{{ view.name }}" {
+	match-clients {
+{%   for client in view.match_clients %}
+		{{ client }};
+{%   endfor %}
+	};
+	recursion {{ view.recursion | default("no") }};
+
+{%   if view.zones is defined and view.zones %}
+{%     for zone in view.zones %}
+{{ print_zone(zone) | indent(8, true) }}
+{%     endfor %}
+{%     if zone.includes is defined and zone.includes %}
+{%       for include in zone.includes %}
+	include "{{ include }}";
+{%       endfor %}
+{%     endif %}
+{%   endif %}
+};
+{% endmacro %}
+
+{##############################################################################
+ #
+ # MACRO :: print_zone()
+ #
+ #############################################################################}
+{% macro print_zone(zone) %}
+zone "{{ zone.name }}" {
+	file "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}";
+	type {{ zone.type }};
+{%   if zone.allow_update is defined and zone.allow_update %}
+	allow-update {
+{%     for host in zone.allow_update %}
+		{{ host }};
+{%     endfor %}
+	};
+{%   endif %}
+	update-policy {
+		grant {{ dubzland_bind9_nsupdate_key.name }} subdomain {{ zone.name }};
+{%   if zone.update_policy is defined and zone.update_policy %}
+{%     for policy in zone.update_policy %}
+		{{ policy }};
+{%     endfor %}
+{%   endif %}
+	};
+{%   if zone.allow_transfer is defined and zone.allow_transfer %}
+	allow-transfer {
+{%     for host in zone.allow_transfer %}
+		{{ host }};
+{%     endfor %}
+	};
+{%   endif %}
+{%   if zone.masters is defined and zone.masters %}
+	masters {
+{%     for master in zone.masters %}
+		{{ master }};
+{%     endfor %}
+	};
+{%   endif %}
+{%   if zone.extra_options is defined and zone.extra_options %}
+{%     for option in zone.extra_options %}
+	{{ option }};
+{%     endfor %}
+{%   endif %}
+};
+{% endmacro %}

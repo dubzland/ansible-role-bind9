@@ -1,0 +1,44 @@
+---
+dubzland_bind9_zone_directory: /var/cache/bind
+dubzland_bind9_forwarders:
+  - 8.8.8.8
+  - 8.8.4.4
+
+dubzland_bind9_nsupdate_key:
+  name: nsupdate
+  algorithm: hmac-md5
+  secret: "+fA/mGB1eKYbOV49ZTWVAsKP3tDGMYSAfZT3XkCUMkiplB242Uqi80iQ 2fQLogECjJYrQPPsOat2Tq4nLg3u1A=="
+#
+# - name: mykey
+#   algorithm: hmac-md5
+#   secret: adf319
+dubzland_bind9_keys: []
+
+#
+# - name: myacl
+#   members:
+#     - 192.168.0.0/32
+dubzland_bind9_acls: []
+
+#
+# - name: public
+#   match_clients:
+#     - key somekey
+#     - myacl
+#   recursion: "no"
+#   includes:
+#     - /etc/bind/named.conf.default-zones
+dubzland_bind9_views: []
+
+#
+# - name: example.com
+#   type: master
+#   domain_name: example.com
+#   nameservers:
+#     - ns1.example.com
+#     - ns1.example.com
+#   update_policy:
+#     - grant mykey subdomain example.com
+#   allow_transfer:
+#     - 192.168.0.2
+dubzland_bind9_zones: []
