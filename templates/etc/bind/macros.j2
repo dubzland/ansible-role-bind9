@@ -39,7 +39,9 @@ view "{{ view.name }}" {
 
 {%   if view.zones is defined and view.zones %}
 {%     for zone in view.zones %}
-{{ print_zone(zone) | indent(8, true) }}
+{%       set zone_file = ([dubzland_bind9_zone_directory, view.name, ("db." +
+      zone.name)] | join("/")) %}
+{{ print_zone(zone_file, zone) | indent(8, true) }}
 {%     endfor %}
 {%     if zone.includes is defined and zone.includes %}
 {%       for include in zone.includes %}
@@ -55,9 +57,9 @@ view "{{ view.name }}" {
  # MACRO :: print_zone()
  #
  #############################################################################}
-{% macro print_zone(zone) %}
+{% macro print_zone(zone_file, zone) %}
 zone "{{ zone.name }}" {
-	file "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}";
+	file "{{ zone_file }}";
 	type {{ zone.type }};
 {%   if zone.allow_update is defined and zone.allow_update %}
 	allow-update {
@@ -66,14 +68,13 @@ zone "{{ zone.name }}" {
 {%     endfor %}
 	};
 {%   endif %}
-	update-policy {
-		grant {{ dubzland_bind9_nsupdate_key.name }} subdomain {{ zone.name }};
 {%   if zone.update_policy is defined and zone.update_policy %}
+	update-policy {
 {%     for policy in zone.update_policy %}
 		{{ policy }};
 {%     endfor %}
-{%   endif %}
 	};
+{%   endif %}
 {%   if zone.allow_transfer is defined and zone.allow_transfer %}
 	allow-transfer {
 {%     for host in zone.allow_transfer %}

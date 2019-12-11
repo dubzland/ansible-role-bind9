@@ -5,13 +5,16 @@
 {%   set _ = _record.update({ "value": host.value }) %}
 {%   set _ = _record.update({ "type": host.type }) %}
 {%   set _ = _record.update({ "state": (host.state | default('present')) }) %}
+{%   set _ = _record.update({ "key": dubzland_bind9_keys | json_query('[?name==`' + zone.nsupdate_key + '`]') | first }) %}
 {%   set _ = _derived_ddns_updates_tpl.append(_record) %}
 {% endmacro %}
 {% macro handle_zone(zone) %}
-{%   if zone.records is defined and zone.records %}
-{%     for record in zone.records %}
-{%       set _ = make_record(zone, record) %}
-{%     endfor %}
+{%   if zone.dynamic | default(False) %}
+{%     if zone.records is defined and zone.records %}
+{%       for record in zone.records %}
+{%         set _ = make_record(zone, record) %}
+{%       endfor %}
+{%     endif %}
 {%   endif %}
 {% endmacro %}
 {% for view in dubzland_bind9_views %}
@@ -21,8 +24,6 @@
 {%     endfor %}
 {%   endif %}
 {% endfor %}
-{#
-#}
 {% for zone in dubzland_bind9_zones %}
 {%   set _ = handle_zone(zone) %}
 {% endfor %}

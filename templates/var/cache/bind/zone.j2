@@ -1,6 +1,9 @@
+{% macro print_record(name, type, value) %}
+{{ "%-15s" | format(name) }} IN      {{ "%-7s" | format(type) }} {{ value }}
+{% endmacro %}
 $TTL            604800
 $ORIGIN {{ zone.name }}.
-@               IN      SOA     {{ zone.nameservers | map(attribute='name') | first }}. {{ zone.hostmaster }}. (
+@               IN      SOA     {{ zone.nameservers | map(attribute='name') | first }}. {{ zone.hostmaster | default("hostmaster." + zone.name) }}. (
                                 {{ "%10s" | format(zone.serial | default(zone_serial.stdout)) }}     ; Serial
                                 {{ "%10s" | format(zone.refresh | default("604800")) }}     ; Refresh
                                 {{ "%10s" | format(zone.retry | default("86400")) }}     ; Retry
@@ -18,13 +21,20 @@ $ORIGIN {{ zone.name }}.
 {%   endfor %}
 {% endif %}
 {% if zone.nameservers is defined and zone.nameservers %}
-{%   for ns in zone.nameservers %}
+{%   for ns in zone.nameservers -%}
 {%     if ns.ipv4_address is defined and ns.ipv4_address %}
 {%       if (zone.ptr | default(False)) %}
-{{ "%-15s" | format(ns.ipv4_address.split('.') | last) }} IN      PTR     {{ ns.name }}.
+{{ print_record((ns.ipv4_address.split('.') | last), 'PTR', ns.name + '.') }}
 {%       else %}
-{{ "%-15s" | format(ns.name.split('.', 1) | first) }} IN      A     {{ ns.ipv4_address }}
+{{ print_record((ns.name.split('.') | first), 'A', ns.ipv4_address) -}}
 {%       endif %}
 {%     endif %}
-{%   endfor %}
+{%-  endfor %}
+{% endif %}
+{% if not (zone.dynamic | default(False)) %}
+{%   if zone.records is defined and zone.records %}
+{%     for record in zone.records %}
+{{ print_record(record.name, record.type, record.value) }}
+{%     endfor %}
+{%   endif %}
 {% endif %}

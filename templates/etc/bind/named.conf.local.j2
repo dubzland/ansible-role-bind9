@@ -1,7 +1,6 @@
 {% import 'macros.j2' as tpl with context %}
 # {{ ansible_managed }}
 
-include "/etc/bind/{{ dubzland_bind9_nsupdate_key.name }}.key";
 {% for key in dubzland_bind9_keys %}
 include "/etc/bind/{{ key.name }}.key";
 {% endfor %}
@@ -15,5 +14,6 @@ include "/etc/bind/{{ key.name }}.key";
 {% endfor %}
 
 {% for zone in dubzland_bind9_zones %}
-{{ tpl.print_zone(zone) }}
+{%   set zone_file = "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}" %}
+{{ tpl.print_zone(zone_file, zone) }}
 {% endfor %}

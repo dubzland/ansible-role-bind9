@@ -8,34 +8,38 @@
           - 75.75.75.75
           - 75.75.76.76
         dubzland_bind9_nsupdate_key:
-          name: nsupdate
-          algorithm: hmac-md5
-          secret: "+fA/mGB1eKYbOV49ZTWVAsKP3tDGMYSAfZT3XkCUMkiplB242Uqi80iQ 2fQLogECjJYrQPPsOat2Tq4nLg3u1A=="
         dubzland_bind9_keys:
-          - name: ddns-updates
-            algorithm: hmac-md5
+          - name: "ddns-updates-public"
+            algorithm: "hmac-md5"
+            secret: "+fA/mGB1eKYbOV49ZTWVAsKP3tDGMYSAfZT3XkCUMkiplB242Uqi80iQ 2fQLogECjJYrQPPsOat2Tq4nLg3u1A=="
+          - name: "ddns-updates-internal"
+            algorithm: "hmac-md5"
             secret: "I7CU8il2xrdWKMhb6gIHuE6QB6c9CNf5zvkdLXGlpOJAKfGtkUiN9rZz 6qReTmWvrG7Pc+fNgUvDn+b3THxEow=="
-          - name: letsencrypt
-            algorithm: hmac-md5
+          - name: "letsencrypt"
+            algorithm: "hmac-md5"
             secret: "N3HsW268Vo9lppseXvzKRZzm8301GZqQvrJaFrVeggsBFMlwHwuLQOrRbQ5BvDxwBQE5qgqC3D5uF9Qr380mnA=="
         dubzland_bind9_acls:
           - name: internal
             members:
               - 10.0.10.0/24
               - 10.0.20.0/24
+              - "key ddns-updates-internal"
           - name: public
             members:
               - "!internal"
+              - "key ddns-updates-public"
+              - "key letsencrypt"
               - any
         dubzland_bind9_views:
           - name: public
             match_clients:
               - public
-              - key letsencrypt
             zones:
               - name: example.com
                 type: master
                 hostmaster: hostmaster.example.com
+                dynamic: yes
+                nsupdate_key: "ddns-updates-public"
                 nameservers:
                   - name: ns1.example.com
                     ipv4_address: 10.0.10.2
@@ -46,36 +50,53 @@
                 allow_transfer:
                   - key ddns-updates
                 update_policy:
-                  - grant letsencrypt name _acme-challenge.example.com. txt
+                  - "grant ddns-updates-public subdomain example.com."
+                  - "grant letsencrypt name _acme-challenge.example.com. txt"
                 extra_options:
                   - check-names warn
                 records:
                   - name: www
                     value: "10.0.10.4"
                     type: A
-                    server: "127.0.0.1"
                   - name: mail
                     value: "10.0.10.5"
                     type: A
-                    server: "127.0.0.1"
 
               - name: 10.0.10.in-addr.arpa
                 type: master
                 ptr: yes
                 hostmaster: hostmaster.example.com
+                dynamic: yes
+                nsupdate_key: "ddns-updates-public"
                 nameservers:
                   - name: ns1.example.com
                     ipv4_address: 10.0.10.2
                   - name: ns2.example.com
                     ipv4_address: 10.0.10.3
                 allow_transfer:
-                  - key ddns-updates
+                  - "key ddns-updates"
+                update_policy:
+                  - "grant ddns-updates-public subdomain 10.0.10.in-addr.arpa."
                 records:
                   - name: "4"
                     value: "www.example.com."
                     type: "PTR"
-                    server: "127.0.0.1"
                   - name: "5"
                     value: "mail.example.com."
                     type: "PTR"
-                    server: "127.0.0.1"
+          - name: internal
+            match_clients:
+              - "internal"
+            zones:
+              - name: static.example.com
+                type: master
+                hostmaster: hostmaster.static.example.com
+                nameservers:
+                  - name: ns1.static.example.com
+                    ipv4_address: 10.0.20.2
+                  - name: ns2.static.example.com
+                    ipv4_address: 10.0.20.3
+                records:
+                  - name: games
+                    value: "10.0.20.201"
+                    type: A

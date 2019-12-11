@@ -5,7 +5,7 @@ Installs and configures the Bind9 DNS Server.
 
 ## Requirements
 
-Ansible version 2.0 or higher.
+Ansible version 2.0 or higher. `jmespath` python module.
 
 ## Role Variables
 
