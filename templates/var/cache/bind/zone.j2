@@ -1,6 +1,10 @@
 {% macro print_record(name, type, value) %}
 {{ "%-15s" | format(name) }} IN      {{ "%-7s" | format(type) }} {{ value }}
 {% endmacro %}
+; {{ ansible_managed }}
+{% if not zone.dynamic | default(False) %}
+; Hash:{{ zone.hash}},Serial:{{ zone.serial }}
+{% endif %}
 $TTL            604800
 $ORIGIN {{ zone.name }}.
 @               IN      SOA     {{ zone.nameservers | map(attribute='name') | first }}. {{ zone.hostmaster | default("hostmaster." + zone.name) }}. (
@@ -34,7 +38,7 @@ $ORIGIN {{ zone.name }}.
 {% if not (zone.dynamic | default(False)) %}
 {%   if zone.records is defined and zone.records %}
 {%     for record in zone.records %}
-{{ print_record(record.name, record.type, record.value) }}
-{%     endfor %}
+{{ print_record(record.name, record.type, record.value) -}}
+{%-    endfor %}
 {%   endif %}
 {% endif %}

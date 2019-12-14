@@ -1,0 +1,28 @@
+{% set _derived_dynamic_zones_tpl = [] %}
+{% macro handle_zone(zone_file, zone) %}
+{%   if (zone.dynamic | default(False)) %}
+{%     set _dynamic_zone = {"name": zone.name, "file": zone_file, "dynamic": True} %}
+{%     set _ = _dynamic_zone.update({"admin": zone.admin | default("hostmaster." + zone.name)}) %}
+{%     set _ = _dynamic_zone.update({"nameservers": zone.nameservers}) %}
+{%     set _ = _dynamic_zone.update({"serial": dubzland_bind9_default_serial.stdout_lines | first}) %}
+{%     set _ = _dynamic_zone.update({"refresh": zone.refresh | default("604800")}) %}
+{%     set _ = _dynamic_zone.update({"retry": zone.retry | default("86400")}) %}
+{%     set _ = _dynamic_zone.update({"expire": zone.expire | default("2419200")}) %}
+{%     set _ = _dynamic_zone.update({"ttl": zone.ttl | default("604800")}) %}
+{%     set _ = _dynamic_zone.update({"mailservers": zone.mailservers | default([])}) %}
+{%     set _ = _dynamic_zone.update({"records": zone.records | default([])}) %}
+{%     set _ = _derived_dynamic_zones_tpl.append(_dynamic_zone) %}
+{%   endif %}
+{% endmacro %}
+{% for view in dubzland_bind9_views %}
+{%   for zone in view.zones %}
+{%     set zone_dir = ([dubzland_bind9_zone_directory, view.name] | join("/")) %}
+{%     set zone_file = ([zone_dir, "db." + zone.name] | join("/")) %}
+{%     set _ = handle_zone(zone_file, zone) %}
+{%   endfor %}
+{% endfor %}
+{% for zone in dubzland_bind9_zones %}
+{%   set zone_file = ([dubzland_bind9_zone_directory, "db." + zone.name] | join("/")) %}
+{%   set _ = handle_zone(zone_file, zone) %}
+{% endfor %}
+{{ _derived_dynamic_zones_tpl | to_yaml }}

@@ -1,0 +1,27 @@
+- name: generate the dynamic zone list
+  set_fact:
+    dubzland_bind9_dynamic_zones: "{{ lookup('template', 'lookups/_dynamic_zones.j2', convert_data=False) | from_yaml }}"
+  tags:
+    - bind9
+    - dns
+
+- name: dump the dynamic zone list
+  debug:
+    var: dubzland_bind9_dynamic_zones
+
+- name: ensure the dynamic zone files are present
+  template:
+    src: var/cache/bind/zone.j2
+    dest: "{{ zone.file }}"
+    owner: root
+    group: bind
+    mode: 0660
+    force: no
+  loop: "{{ dubzland_bind9_dynamic_zones }}"
+  loop_control:
+    loop_var: zone
+    label: "{{ zone.file }}"
+  notify: restart bind9
+  tags:
+    - bind9
+    - dns

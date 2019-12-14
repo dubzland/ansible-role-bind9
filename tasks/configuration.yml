@@ -1,4 +1,9 @@
 ---
+- name: generate a zone serial
+  command: "date +%Y%m%d01"
+  register: dubzland_bind9_default_serial
+  changed_when: False
+
 - name: ensure bind9 key files exist
   template:
     src: "etc/bind/key.j2"
@@ -38,45 +43,6 @@
   loop_control:
     label: "{{ '%s/%s' | format(dubzland_bind9_zone_directory, item.name) }}"
   when: dubzland_bind9_views | length > 0
-  tags:
-    - bind9
-    - dns
-
-- name: generate a zone serial
-  command: "date +%Y%m%d01"
-  register: zone_serial
-  changed_when: False
-
-- name: ensure the zone files are present
-  template:
-    src: var/cache/bind/zone.j2
-    dest: "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}"
-    owner: root
-    group: bind
-    mode: 0660
-    force: no
-  loop: "{{ dubzland_bind9_zones }}"
-  loop_control:
-    loop_var: zone
-    label: "{{ dubzland_bind9_zone_directory }}/db.{{ zone.name }}"
-  notify: restart bind9
-  tags:
-    - bind9
-    - dns
-
-- name: ensure the view zone files are present
-  template:
-    src: var/cache/bind/view_zone.j2
-    dest: "{{ dubzland_bind9_zone_directory }}/{{ item.0.name }}/db.{{ item.1.name }}"
-    owner: root
-    group: bind
-    mode: 0660
-    force: no
-  loop: "{{ dubzland_bind9_views | subelements('zones') }}"
-  loop_control:
-    label: "{{ dubzland_bind9_zone_directory }}/{{ item.0.name }}/db.{{ item.1.name }}"
-  when: dubzland_bind9_views | length > 0
-  notify: restart bind9
   tags:
     - bind9
     - dns
