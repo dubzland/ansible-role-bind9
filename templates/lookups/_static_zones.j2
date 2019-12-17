@@ -1,5 +1,10 @@
 {% set _derived_static_zones_tpl = [] %}
-{% macro handle_zone(zone_file, zone) %}
+{% macro handle_zone(zone_file, zone, view='') %}
+{%   if view != '' %}
+{%     set zone_path = [view, zone.name] | join("/") %}
+{%   else %}
+{%     set zone_path = zone.name %}
+{%   endif %}
 {%   if not (zone.dynamic | default(False)) %}
 {%     set _static_zone = {"name": zone.name, "file": zone_file} %}
 {%     set _ = _static_zone.update({"admin": zone.admin | default("hostmaster." + zone.name)}) %}
@@ -12,10 +17,10 @@
 {%     set _ = _static_zone.update({"records": zone.records | default([])}) %}
 {%     set _zone_hash = _static_zone | string | hash('md5') %}
 {%     set _zone_serial = dubzland_bind9_default_serial.stdout_lines | first %}
-{%     if bind_zone_details[zone.name] is defined %}
-{%       if _zone_hash != bind_zone_details[zone.name].hash %}
+{%     if bind_zone_details[zone_path] is defined %}
+{%       if _zone_hash != bind_zone_details[zone_path].hash %}
 {%         set _zone_serial_int = _zone_serial | int %}
-{%         set _bind_serial_int = bind_zone_details[zone.name].serial | int %}
+{%         set _bind_serial_int = bind_zone_details[zone_path].serial | int %}
 {%         if _bind_serial_int >= _zone_serial_int %}
 {%           set _zone_serial = _bind_serial_int + 1 %}
 {%         endif %}
@@ -32,7 +37,7 @@
 {%   for zone in view.zones %}
 {%     set zone_dir = ([dubzland_bind9_zone_directory, view.name] | join("/")) %}
 {%     set zone_file = ([zone_dir, "db." + zone.name] | join("/")) %}
-{%     set _ = handle_zone(zone_file, zone) %}
+{%     set _ = handle_zone(zone_file, zone, view.name) %}
 {%   endfor %}
 {% endfor %}
 {% for zone in dubzland_bind9_zones %}

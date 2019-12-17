@@ -33,15 +33,23 @@ def run_module():
     details = {}
     for line in stdout.split("\n"):
         if len(line) > 0:
-            zone_file, zone_details = line.split(":", 1)
-            _, filename = path.split(zone_file)
-            zone_name = filename.split(".", 1)[-1]
-            hash_chunk, serial_chunk = zone_details.split(",")
+            zone_details = {}
+            zone_file, zone_info = line.split(":", 1)
+            zone_dir, filename = path.split(zone_file)
+            zone_name = filename.replace("db.", "")
+            if zone_dir != module.params['zone_directory']:
+                zone_details['view'] = path.split(zone_dir)[-1]
+                zone_key = "%s/%s" % (zone_details['view'], zone_name)
+            else:
+                zone_key = zone_name
+            hash_chunk, serial_chunk = zone_info.split(",")
             _, hash_str = hash_chunk.split(":")
             _, serial_str = serial_chunk.split(":")
-            details[zone_name] = { "hash": hash_str, "serial": serial_str }
-    result['ansible_facts'] = dict(bind_zone_details=details)
-    result['bind_zone_details'] = details
+            zone_details['hash'] = hash_str
+            zone_details['serial'] = serial_str
+            details[zone_key] = zone_details
+    result['ansible_facts'] = dict(bind9_zone_details=details)
+    result['bind9_zone_details'] = details
 
     # use whatever logic you need to determine whether or not this module
     # made any modifications to your target

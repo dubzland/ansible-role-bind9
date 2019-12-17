@@ -63,3 +63,33 @@
   tags:
     - bind9
     - dns
+
+- name: ensure view based zone files exist
+  bind9_zone:
+    name: "{{ item.1.name }}"
+    admin: "{{ item.1.admin | default('hostmaster') }}"
+    nameservers: "{{ item.1.nameservers | default([]) }}"
+    mailservers: "{{ item.1.mailservers | default([]) }}"
+    records: "{{ item.1.records | default([]) }}"
+    view: "{{ item.0.name }}"
+    zone_directory: "{{ dubzland_bind9_zone_directory }}"
+    dynamic: "{{ item.1.dynamic | default(False) }}"
+  loop: "{{ dubzland_bind9_views | subelements('zones') }}"
+  loop_control:
+    label: "{{ item.0.name }}/{{ item.1.name }}"
+  when: (dubzland_bind9_views | default([])) | length > 0
+
+- name: ensure normal zone files exist
+  bind9_zone:
+    name: "{{ zone.name }}"
+    admin: "{{ zone.admin | default('hostmaster') }}"
+    nameservers: "{{ zone.nameservers | default([]) }}"
+    mailservers: "{{ zone.mailservers | default([]) }}"
+    records: "{{ zone.records | default([]) }}"
+    zone_directory: "{{ dubzland_bind9_zone_directory }}"
+    dynamic: "{{ zone.dynamic | default(False) }}"
+  loop: "{{ dubzland_bind9_zones }}"
+  loop_control:
+    label: "{{ zone.name }}"
+    loop_var: "zone"
+  when: (dubzland_bind9_zones | default([])) | length > 0
