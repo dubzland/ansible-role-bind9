@@ -30,6 +30,37 @@ dubzland_bind9_forwarders:
 
 List of DNS servers to relay queries to.
 
+### dubzland_bind9_keys
+
+```yaml
+dubzland_bind9_keys: []
+```
+
+List of keys to add to Bind.
+
+### dubzland_bind9_acls
+
+```yaml
+dubzland_bind9_acls: []
+```
+
+Access Control Lists to setup in Bind.
+
+### dubzland_bind9_zones
+
+```
+dubzland_bind9_zones: []
+```
+
+List of zones to be configured.
+
+### dubzland_bind9_views
+
+```
+dubzland_bind9_views: []
+```
+
+Logical views to create in Bind.
 
 ## Dependencies
 
