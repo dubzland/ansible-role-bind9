@@ -7,7 +7,7 @@ services:
 molecule:
   stage: test
   before_script:
-    - apt-get install -y --no-install-recommends python-pip
+    - apk add --update python python-dev py-pip
     - pip install jmespath
     - ansible --version
   script:
