@@ -6,8 +6,8 @@ services:
 
 molecule:
   stage: test
-  script:
+  before_script:
+    - pip install jmespath
     - ansible --version
-    - molecule converge -s custom -- -vvv
-    - molecule converge -s default -- -vvv
+  script:
     - molecule test --all
