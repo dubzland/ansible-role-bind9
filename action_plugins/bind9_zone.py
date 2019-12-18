@@ -143,7 +143,8 @@ class ActionModule(ActionBase):
             #
             # Generate a hash of the new zone data
             #
-            zone_hash = hashlib.md5(json.dumps(self.zone_data, sort_keys=True)).hexdigest()
+            zone_hash = hashlib.md5(json.dumps(self.zone_data,
+		    sort_keys=True).encode('utf-8')).hexdigest()
 
             if zone_details != None:
                 current_hash = zone_details.get('hash', None)
