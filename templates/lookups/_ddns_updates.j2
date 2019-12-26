@@ -9,7 +9,7 @@
 {%   set _ = _derived_ddns_updates_tpl.append(_record) %}
 {% endmacro %}
 {% macro handle_zone(zone) %}
-{%   if zone.dynamic | default(False) %}
+{%   if zone.dynamic | default(False) and zone.type == 'master' %}
 {%     if zone.records is defined and zone.records %}
 {%       for record in zone.records %}
 {%         set _ = make_record(zone, record) %}
