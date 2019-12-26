@@ -36,7 +36,7 @@
   file:
     path: "{{ '%s/%s' | format(dubzland_bind9_zone_directory, item.name) }}"
     state: directory
-    owner: root
+    owner: bind
     group: bind
     mode: 0775
   loop: "{{ dubzland_bind9_views }}"
@@ -77,7 +77,11 @@
   loop: "{{ dubzland_bind9_views | subelements('zones') }}"
   loop_control:
     label: "{{ item.0.name }}/{{ item.1.name }}"
-  when: (dubzland_bind9_views | default([])) | length > 0
+  when:
+    - (dubzland_bind9_views | default([])) | length > 0
+    - item.1.type == 'master'
+  notify:
+    - restart bind9
 
 - name: ensure normal zone files exist
   bind9_zone:
@@ -92,4 +96,8 @@
   loop_control:
     label: "{{ zone.name }}"
     loop_var: "zone"
-  when: (dubzland_bind9_zones | default([])) | length > 0
+  when:
+    - (dubzland_bind9_zones | default([])) | length > 0
+    - zone.type == 'master'
+  notify:
+    - restart bind9
