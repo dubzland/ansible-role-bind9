@@ -143,8 +143,7 @@ class ActionModule(ActionBase):
             #
             # Generate a hash of the new zone data
             #
-            zone_hash = hashlib.md5(json.dumps(self.zone_data,
-		    sort_keys=True).encode('utf-8')).hexdigest()
+            zone_hash = hashlib.md5(json.dumps(self.zone_data, sort_keys=True).encode('utf-8')).hexdigest()
 
             if zone_details != None:
                 current_hash = zone_details.get('hash', None)
@@ -187,9 +186,9 @@ class ActionModule(ActionBase):
             new_task.args['content'] = templated
             new_task.args['dest'] = dest_file
             new_task.args['force'] = force
-            new_task.args['owner'] = 'root'
+            new_task.args['owner'] = 'bind'
             new_task.args['group'] = 'bind'
-            new_task.args['mode'] = '0660'
+            new_task.args['mode'] = '0644'
 
             copy_action = self._shared_loader_obj.action_loader.get('copy',
                     task=new_task, connection=self._connection,
