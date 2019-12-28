@@ -1,4 +1,7 @@
 ---
+- name: reload bind9
+  command: rndc reload
+
 - name: restart bind9
   command: named-checkconf /etc/bind/named.conf
   notify: restart bind9 (real)

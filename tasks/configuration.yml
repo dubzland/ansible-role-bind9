@@ -81,7 +81,7 @@
     - (dubzland_bind9_views | default([])) | length > 0
     - item.1.type == 'master'
   notify:
-    - restart bind9
+    - reload bind9
 
 - name: ensure normal zone files exist
   bind9_zone:
@@ -100,4 +100,4 @@
     - (dubzland_bind9_zones | default([])) | length > 0
     - zone.type == 'master'
   notify:
-    - restart bind9
+    - reload bind9
