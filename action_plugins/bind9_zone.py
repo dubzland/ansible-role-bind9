@@ -162,6 +162,7 @@ class ActionModule(ActionBase):
                     "name": self.name,
                     "serial": zone_serial,
                     "nameservers": self.nameservers,
+                    "mailservers": self.mailservers,
                     "records": self.records,
                     "dynamic": self.is_dynamic
                 },

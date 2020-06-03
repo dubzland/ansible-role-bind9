@@ -8,11 +8,39 @@
 {%   set _ = _record.update({ "key": dubzland_bind9_keys | json_query('[?name==`' + zone.nsupdate_key + '`]') | first }) %}
 {%   set _ = _derived_ddns_updates_tpl.append(_record) %}
 {% endmacro %}
+{% macro make_mailserver(zone, mailserver, index) %}
+{%   set _mailserver = { "zone": zone.name } %}
+{%   set _ = _mailserver.update({ "record": zone.name + '.' }) %}
+{%   set _ = _mailserver.update({ "value": (index|string) + ' ' + mailserver }) %}
+{%   set _ = _mailserver.update({ "type": "MX" }) %}
+{%   set _ = _mailserver.update({ "state": (host.state | default('present')) }) %}
+{%   set _ = _mailserver.update({ "key": dubzland_bind9_keys | json_query('[?name==`' + zone.nsupdate_key + '`]') | first }) %}
+{%   set _ = _derived_ddns_updates_tpl.append(_mailserver) %}
+{% endmacro %}
+{% macro make_txt_record(zone, value) %}
+{%   set _txt = { "zone": zone.name } %}
+{%   set _ = _txt.update({ "record": zone.name + '.' }) %}
+{%   set _ = _txt.update({ "value": value }) %}
+{%   set _ = _txt.update({ "type": "TXT" }) %}
+{%   set _ = _txt.update({ "state": (host.state | default('present')) }) %}
+{%   set _ = _txt.update({ "key": dubzland_bind9_keys | json_query('[?name==`' + zone.nsupdate_key + '`]') | first }) %}
+{%   set _ = _derived_ddns_updates_tpl.append(_txt) %}
+{% endmacro %}
 {% macro handle_zone(zone) %}
 {%   if zone.dynamic | default(False) and zone.type == 'master' %}
 {%     if zone.records is defined and zone.records %}
 {%       for record in zone.records %}
 {%         set _ = make_record(zone, record) %}
+{%       endfor %}
+{%     endif %}
+{%     if zone.mailservers is defined and zone.mailservers %}
+{%       for mailserver in zone.mailservers %}
+{%         set _ = make_mailserver(zone, mailserver, loop.index * 10) %}
+{%       endfor %}
+{%     endif %}
+{%     if zone.txt_records is defined and zone.txt_records %}
+{%       for txt_record in zone.txt_records %}
+{%         set _ = make_txt_record(zone, txt_record) %}
 {%       endfor %}
 {%     endif %}
 {%   endif %}
