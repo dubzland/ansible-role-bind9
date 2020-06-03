@@ -11,7 +11,7 @@
 {% macro make_mailserver(zone, mailserver, index) %}
 {%   set _mailserver = { "zone": zone.name } %}
 {%   set _ = _mailserver.update({ "record": zone.name + '.' }) %}
-{%   set _ = _mailserver.update({ "value": (index|string) + ' ' + mailserver }) %}
+{%   set _ = _mailserver.update({ "value": (index|string) + ' ' + mailserver + '.' }) %}
 {%   set _ = _mailserver.update({ "type": "MX" }) %}
 {%   set _ = _mailserver.update({ "state": (host.state | default('present')) }) %}
 {%   set _ = _mailserver.update({ "key": dubzland_bind9_keys | json_query('[?name==`' + zone.nsupdate_key + '`]') | first }) %}
