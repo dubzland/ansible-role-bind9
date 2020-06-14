@@ -36,6 +36,13 @@ view "{{ view.name }}" {
 {%   endfor %}
 	};
 	recursion {{ view.recursion | default("no") }};
+{%   if view.allow_recursion is defined and view.allow_recursion %}
+	allow-recursion {
+{%     for host in view.allow_recursion %}
+		{{ host }};
+{%     endfor %}
+	};
+{%   endif %}
 
 {%   if view.zones is defined and view.zones %}
 {%     for zone in view.zones %}
@@ -69,13 +76,6 @@ zone "{{ zone.name }}" {
 {%   if zone.allow_update is defined and zone.allow_update %}
 	allow-update {
 {%     for host in zone.allow_update %}
-		{{ host }};
-{%     endfor %}
-	};
-{%   endif %}
-{%   if zone.allow_recursion is defined and zone.allow_recursion %}
-	allow-recursion {
-{%     for host in zone.allow_recursion %}
 		{{ host }};
 {%     endfor %}
 	};
