@@ -49,6 +49,11 @@ view "{{ view.name }}" {
 {%       endfor %}
 {%     endif %}
 {%   endif %}
+{%   if view.extra_options is defined and view.extra_options %}
+{%     for option in view.extra_options %}
+	{{ option }};
+{%     endfor %}
+{%   endif %}
 };
 {% endmacro %}
 

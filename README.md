@@ -48,7 +48,7 @@ Access Control Lists to setup in Bind.
 
 ### dubzland_bind9_zones
 
-```
+```yaml
 dubzland_bind9_zones: []
 ```
 
@@ -56,7 +56,7 @@ List of zones to be configured.
 
 ### dubzland_bind9_views
 
-```
+```yaml
 dubzland_bind9_views: []
 ```
 
@@ -69,46 +69,28 @@ None
 ## Example Playbook
 
 ```yaml
-- hosts: dhcp-servers
+- hosts: dns-servers
   become: yes
   roles:
-  - role: dubzland.dhcpd
+  - role: dubzland.bind9
     vars:
-      dubzland_dhcpd_interfaces:
-        - eth1
-      dubzland_dhcpd_failovers:
-        - name: my-failover
-          primary: 192.168.0.1
-          secondary: 192.168.0.2
-          split: 128
-      dubzland_dhcpd_keys:
-        - name: my-dynamic-key
-          secret: "{{ my_dynamic_key_secret_value }}"
-      dubzland_dhcpd_zones:
-        - name: example.com
-          primary: 192.168.0.1
-          key: my-dynamic-key
-        - name: 0.168.192.in-addr.arpa
-          primary: 192.168.0.1
-          key: my-dynamic-key
-      dubzland_dhcpd_groups:
-        - options: |
-            option domain-name example.com;
-          subnets:
-            - address: 192.168.0.0/24
-              pools:
-                - range: 192.168.0.101 192.168.0.200
-                  options: |
-                    failover peer "my-failover";
-              options: |
-                option routers 192.168.0.1;
-                option domain-name-servers 192.168.0.1;
-                option domain-search example.com;
-                option ntp-servers 192.168.0.1;
-          hosts:
-            - hostname: myhost
-              address: 192.168.0.12
-              mac: 00:11:22:aa:bb:cc
+      dubzland_bind9_zones:
+        - name: dubzland.net
+          type: master
+          hostmaster: admin.dubzland.net
+          nameservers:
+            - name: ns1.dubzland.net
+              ipv4_address: 10.0.0.1
+            - name: ns2.dubzland.net
+              ipv4_address: 10.0.0.2
+          mailservers:
+            - mail.dubzland.net
+          txt_records:
+            - "v=spf1 a mx ~all"
+          records:
+            - name: dubzland.net.
+              value: 10.0.0.1
+              type: A
 ```
 
 ## License
