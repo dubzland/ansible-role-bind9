@@ -73,6 +73,13 @@ zone "{{ zone.name }}" {
 {%     endfor %}
 	};
 {%   endif %}
+{%   if zone.allow_recursion is defined and zone.allow_recursion %}
+	allow-recursion {
+{%     for host in zone.allow_recursion %}
+		{{ host }};
+{%     endfor %}
+	};
+{%   endif %}
 {%   if zone.update_policy is defined and zone.update_policy %}
 	update-policy {
 {%     for policy in zone.update_policy %}
