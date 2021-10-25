@@ -1,0 +1,5 @@
+---
+dubzland_bind9_packages:
+  - bind9
+  - python3-dnspython
+  - dnsutils

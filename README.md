@@ -1,5 +1,11 @@
 # Ansible Role: Bind9
-[![Gitlab pipeline status (self-hosted)](https://git.dubzland.net/dubzland/ansible-role-bind9/badges/master/pipeline.svg)](https://git.dubzland.net/dubzland/ansible-role-bind9)
+[![Gitlab pipeline status (self-hosted)](https://git.dubzland.net/dubzland/ansible-role-bind9/badges/main/pipeline.svg)](https://git.dubzland.net/dubzland/ansible-role-bind9/pipelines)
+[![Ansible role](https://img.shields.io/ansible/role/45376)](https://galaxy.ansible.com/dubzland/bind9)
+[![Ansible role downloads](https://img.shields.io/ansible/role/d/45376)](https://galaxy.ansible.com/dubzland/bind9)
+[![Ansible Quality Score](https://img.shields.io/ansible/quality/45376)](https://galaxy.ansible.com/dubzland/bind9)
+[![Liberapay patrons](https://img.shields.io/liberapay/patrons/jdubz)](https://liberapay.com/jdubz/donate)
+[![Liberapay receiving](https://img.shields.io/liberapay/receives/jdubz)](https://liberapay.com/jdubz/donate)
+
 
 Installs and configures the Bind9 DNS Server.
 
